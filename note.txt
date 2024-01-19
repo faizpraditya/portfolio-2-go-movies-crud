@@ -1,2 +1,11 @@
 using gorilla mux (third-party package for building web applications and APIs in the Go)
 not using a db, just struct and slices to manipulate the data inside golang
+import(
+	"fmt" // to printing out stuff (your software is connected, etc)
+	"log" // to log the errors if there's any for connecting to the server
+	"encoding/json" // to encode the data into json when send it to the postman
+	"math/rand" // create new id for new user
+	"net/http" // create a server in golang
+	"strconv" // conv new id to str
+	"github.com/gorilla/mux" // import the gorilla mux
+)
