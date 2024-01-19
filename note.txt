@@ -1,0 +1,2 @@
+using gorilla mux (third-party package for building web applications and APIs in the Go)
+not using a db, just struct and slices to manipulate the data inside golang
