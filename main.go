@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt" // to printing out stuff (your software is connected, etc)
-	"log" // to log the errors if there's any for connecting to the server
-
 	"encoding/json" // to encode the data into json when send it to the postman
-	// create new id for new user
-	"net/http" // create a server in golang
+	"fmt"           // to printing out stuff (your software is connected, etc)
+	"log"           // to log the errors if there's any for connecting to the server
+	"math/rand"     // create new id for new user
+	"net/http"      // create a server in golang
+	"strconv"       // to convert the math/rand (int) to str so we able to assign the value to the struct (bcs the id type is string)
 
 	"github.com/gorilla/mux" // import the gorilla mux
 )
@@ -62,7 +62,37 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func createMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var movie Movie
+	// get the value to the movie var after decoding it
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.ID = strconv.Itoa(rand.Intn(100000000))
+	// assign new movie (var movie) to movies slice
+	movies = append(movies, movie)
+	// return the movie to the front/user
+	json.NewEncoder(w).Encode(movie)
+}
 
+// just to make it simple for practicing
+// should modify only the data that we want to modify if we code irl / work
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+	// set json content type
+	w.Header().Set("Content-Type", "application/json")
+	// params
+	params := mux.Vars(r)
+	// loop over the movie, range
+	// delete the movie with the id that we've sent (from the from/user/postman)
+	// add a new movie that we'ev also sent
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[index+1:]...)
+			var movie Movie
+			_ = json.NewDecoder(r.Body).Decode(&movie)
+			movie.ID = params["id"]
+			movies = append(movies, movie)
+			json.NewEncoder(w).Encode(movie)
+		}
+	}
 }
 
 func main() {
@@ -77,7 +107,7 @@ func main() {
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies/{id}", getMovie).Methods("GET")
 	r.HandleFunc("/movies", createMovie).Methods("POST")
-	// r.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
+	r.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Printf("Starting server at port 8000\n")
